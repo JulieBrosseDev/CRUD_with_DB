@@ -40,16 +40,20 @@ app.get('/api/employees/:id/:whatever', (req, res) => {
     
 app.put('/api/employees/:id', (req, res)  => {
     let requiredId = parseInt(req.params.id)
-    let lastname = req.body.lastname;
-    let firstname = req.body.firstname;
-    let email = req.body.email;
+    // let lastname = req.body.lastname;
+    // let firstname = req.body.firstname;
+    // let email = req.body.email;
 
-    connection.query(`UPDATE employee SET lastname = "${lastname}", firstname ="${firstname}", email="${email}" WHERE id = ${requiredId}`, (err, results) => {
+    // INSTEAD OF SETTING EVERY ELEMENT IN THE QUERY : CALL DATA AND FILL EVERY CORREPONDING FIELDS ('?')
+    const data = req.body
+
+
+    connection.query(`UPDATE employee SET ? WHERE id = ${requiredId}`, data, (err, results) => {
     if (err) res.status(404).send('The employee with the given id was not found')
-        const result = validateEmployee(req.body);
-        //const {error} =  validateEmployee(req.body);
-        if(result.error) {
-        //if(error) {
+        //const result = validateEmployee(req.body);
+        const {error} =  validateEmployee(req.body);
+        //if(result.error) {
+        if(error) {
             res.status(400).send(error.details[0].message)
             return;
         }
