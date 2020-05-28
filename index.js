@@ -5,14 +5,19 @@ const Joi = require('joi')
 app.use(express.json());
 
 app.get('/api/employees', (req, res) => {
-    connection.query('SELECT * from employee', (err, results) => {
+    let sql = 'SELECT * FROM employee';
+    const sqlValues = [];
+    if (req.query.lastname) {
+        sql += ' WHERE lastname = ?';
+        sqlValues.push(req.query.lastname);
+    }
+    connection.query(sql, sqlValues, (err, results) => {
         if (err) {
             res.status(500).send('Error retrieving employees')
         } else {
             res.json(results)
-        }
-
-  });
+        } 
+    });
 });
 
 app.delete('/api/employees/:id', (req, res) => {
@@ -46,6 +51,10 @@ app.put('/api/employees/:id', (req, res)  => {
 
     // INSTEAD OF SETTING EVERY ELEMENT IN THE QUERY : CALL DATA AND FILL EVERY CORREPONDING FIELDS ('?')
     const data = req.body
+
+    // every element of the data can be retrieved as we can see bellow with the console logs
+    console.log(data.firstname)
+    console.log(data.lastname)
 
 
     connection.query(`UPDATE employee SET ? WHERE id = ${requiredId}`, data, (err, results) => {
