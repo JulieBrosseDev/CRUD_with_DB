@@ -65,12 +65,13 @@ app.put('/api/employees/:id', (req, res)  => {
     // INSTEAD OF SETTING EVERY E LEMENT IN THE QUERY : CALL DATA AND FILL EVERY CORREPONDING FIELDS ('?')
     const data = req.body
     //allDataNeeded()
-    // every element of the data can be retrieved as we can see bellow with the console logs
-    if (!emailRegex.test(data.email)) {
-        return res.status(422).json({
-          error: 'Invalid email',
-        });
-      } else {
+
+    // CHECKING EMAIL FORMAT WITHOUT JOI :
+    // if (!emailRegex.test(data.email)) {
+    //     return res.status(422).json({
+    //       error: 'Invalid email',
+    //     });
+  
         connection.query(`UPDATE employee SET ? WHERE id = ${requiredId}`, data, (err, results) => {
         if (err) res.status(404).send('The employee with the given id was not found')
             //const result = validateEmployee(req.body);
@@ -82,7 +83,7 @@ app.put('/api/employees/:id', (req, res)  => {
             }
             res.send(results)
         });
-    }
+ //   }
 });
 
 app.post('/api/employees', (req, res) => {
@@ -116,7 +117,7 @@ function validateEmployee(results) {
         //lastname should be a string of at least 3 characters and can't be empty
         lastname: Joi.string().min(3),
         firstname: Joi.string().min(3).required(),
-        email: Joi.email().min(3).required()
+        email: Joi.string().email().min(3).required()
     }
     return Joi.validate(results, schema)
 }
