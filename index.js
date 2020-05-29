@@ -4,9 +4,12 @@ const app = express();
 const Joi = require('joi')
 app.use(express.json());
 
+
+// this route allows us to retrieve all employees or specific ones if the lastname is precised in the url (ex : "/api/employees?lastname=Marino")
 app.get('/api/employees', (req, res) => {
     let sql = 'SELECT * FROM employee';
     const sqlValues = [];
+    // if the lastname is precised in the url, we add an sql condition (filter)
     if (req.query.lastname) {
         sql += ' WHERE lastname = ?';
         sqlValues.push(req.query.lastname);
@@ -41,33 +44,45 @@ app.get('/api/employees/:id/:whatever', (req, res) => {
 });
 
 
+// EXAMPLE WITHOUT JOI to Chek if all fields have been filled. If not it returns the 422 error
+// const allDataNeeded = () => {
+//     if (!data.firstname || !data.lastname || !data.email) {
+//         return res.status(422).json({
+//           error: 'at least one of the required fields is missing'
+//     });
+// }
+
+const emailRegex = /[a-z0-9._]+@[a-z0-9-]+\.[a-z]{2,3}/;
+
 
     
 app.put('/api/employees/:id', (req, res)  => {
-    let requiredId = parseInt(req.params.id)
-    // let lastname = req.body.lastname;
-    // let firstname = req.body.firstname;
-    // let email = req.body.email;
+    const requiredId = parseInt(req.params.id)
+    // const lastname = req.body.lastname;
+    // const firstname = req.body.firstname;
+    // const email = req.body.email;
 
-    // INSTEAD OF SETTING EVERY ELEMENT IN THE QUERY : CALL DATA AND FILL EVERY CORREPONDING FIELDS ('?')
+    // INSTEAD OF SETTING EVERY E LEMENT IN THE QUERY : CALL DATA AND FILL EVERY CORREPONDING FIELDS ('?')
     const data = req.body
-
+    //allDataNeeded()
     // every element of the data can be retrieved as we can see bellow with the console logs
-    console.log(data.firstname)
-    console.log(data.lastname)
-
-
-    connection.query(`UPDATE employee SET ? WHERE id = ${requiredId}`, data, (err, results) => {
-    if (err) res.status(404).send('The employee with the given id was not found')
-        //const result = validateEmployee(req.body);
-        const {error} =  validateEmployee(req.body);
-        //if(result.error) {
-        if(error) {
-            res.status(400).send(error.details[0].message)
-            return;
-        }
-        res.send(results)
-    });
+    if (!emailRegex.test(data.email)) {
+        return res.status(422).json({
+          error: 'Invalid email',
+        });
+      } else {
+        connection.query(`UPDATE employee SET ? WHERE id = ${requiredId}`, data, (err, results) => {
+        if (err) res.status(404).send('The employee with the given id was not found')
+            //const result = validateEmployee(req.body);
+            const {error} =  validateEmployee(req.body);
+            //if(result.error) {
+            if(error) {
+                res.status(400).send(error.details[0].message)
+                return;
+            }
+            res.send(results)
+        });
+    }
 });
 
 app.post('/api/employees', (req, res) => {
@@ -81,9 +96,9 @@ app.post('/api/employees', (req, res) => {
 
     // --- end of validation with joi
 
-    let lastname = req.body.lastname;
-    let firstname = req.body.firstname;
-    let email = req.body.email;
+    const lastname = req.body.lastname;
+    const firstname = req.body.firstname;
+    const email = req.body.email;
     connection.query(`INSERT INTO employee (lastname, firstname, email) VALUES ('${firstname}', '${lastname}', '${email}')`,
     (err, result) => {
         if (err) {
@@ -98,9 +113,10 @@ app.post('/api/employees', (req, res) => {
 
 function validateEmployee(results) {
     const schema ={
-        lastname: Joi.string().min(3).required(),
+        //lastname should be a string of at least 3 characters and can't be empty
+        lastname: Joi.string().min(3),
         firstname: Joi.string().min(3).required(),
-        email: Joi.string().min(3).required()
+        email: Joi.email().min(3).required()
     }
     return Joi.validate(results, schema)
 }

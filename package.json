@@ -1,17 +1,27 @@
 {
-  "name": "CRUD_with_db",
+  "name": "crud_with_db",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "joi": "^14.3.1",
     "mysql": "^2.18.1"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JulieBrosseDev/CRUD_with_DB.git"
+  },
+  "bugs": {
+    "url": "https://github.com/JulieBrosseDev/CRUD_with_DB/issues"
+  },
+  "homepage": "https://github.com/JulieBrosseDev/CRUD_with_DB#readme",
+  "description": ""
 }
